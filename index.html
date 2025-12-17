@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Adventure - Играй прямо в браузере</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #8a2be2;
+            --secondary: #4169e1;
+            --dark: #0a0a1a;
+            --light: #f0f0ff;
+            --accent: #00ffaa;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a, #1a1a2e, #16213e);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(138, 43, 226, 0.2);
+            color: var(--accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 50px 0 30px;
+            text-align: center;
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .game-header {
+            background: rgba(20, 20, 40, 0.9);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .game-title {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: rgba(138, 43, 226, 0.3);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .control-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        #fullscreenBtn {
+            background: rgba(0, 255, 170, 0.2);
+        }
+
+        #fullscreenBtn:hover {
+            background: var(--accent);
+        }
+
+        #gameFrame {
+            width: 100%;
+            height: 600px;
+            border: none;
+            background: #000;
+            display: block;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #0a0a1a, #1a1a2e);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.5s;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(138, 43, 226, 0.3);
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Game Info */
+        .game-info {
+            padding: 40px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .description {
+            background: rgba(20, 20, 40, 0.7);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .description h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .features {
+            background: rgba(20, 20, 40, 0.7);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .features h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features i {
+            color: var(--accent);
+        }
+
+        /* Controls Guide */
+        .controls-guide {
+            background: rgba(10, 10, 26, 0.8);
+            padding: 40px;
+            border-radius: 12px;
+            margin: 40px 0;
+            text-align: center;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .control-item {
+            background: rgba(20, 20, 40, 0.6);
+            padding: 20px;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .control-item:hover {
+            transform: translateY(-5px);
+            background: rgba(138, 43, 226, 0.2);
+        }
+
+        .control-item i {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(10, 10, 26, 0.95);
+            padding: 40px 0;
+            margin-top: 50px;
+            border-top: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(138, 43, 226, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-info {
+                grid-template-columns: 1fr;
+            }
+            
+            #gameFrame {
+                height: 400px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-gamepad"></i>
+                    <span>COSMIC ADVENTURE</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#game">Играть</a>
+                    <a href="#info">Об игре</a>
+                    <a href="#controls">Управление</a>
+                    <a href="godot_game/godot_loader.html" target="_blank">Открыть в полном окне</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero with Game -->
+    <section class="hero" id="game">
+        <div class="container">
+            <h1 style="font-size: 2.8rem; margin-bottom: 15px; color: var(--accent);">
+                ИГРАЙ ПРЯМО НА САЙТЕ
+            </h1>
+            <p style="font-size: 1.2rem; color: #aaa; max-width: 800px; margin: 0 auto;">
+                Запустите игру ниже. Для лучшего опыта используйте полный экран!
+            </p>
+            
+            <div class="game-container">
+                <div class="game-header">
+                    <div class="game-title">
+                        <i class="fas fa-play-circle"></i> COSMIC ADVENTURE - ВЕРСИЯ ДЛЯ БРАУЗЕРА
+                    </div>
+                    <div class="game-controls">
+                        <button class="control-btn" id="restartBtn">
+                            <i class="fas fa-redo"></i> Перезапуск
+                        </button>
+                        <button class="control-btn" id="fullscreenBtn">
+                            <i class="fas fa-expand"></i> Полный экран
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="position: relative;">
+                    <!-- Здесь будет игра -->
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loader"></div>
+                        <h3 style="color: var(--accent); margin-bottom: 10px;">Загрузка игры...</h3>
+                        <p style="color: #aaa; text-align: center; max-width: 500px;">
+                            Игра загружается. Пожалуйста, подождите. Это может занять несколько секунд.
+                        </p>
+                        <p id="loadProgress" style="color: var(--primary); margin-top: 15px; font-weight: 600;">0%</p>
+                    </div>
+                    
+                    <!-- ОСНОВНОЙ ФРЕЙМ С ИГРОЙ -->
+                    <iframe 
+                        id="gameFrame" 
+                        src="godot_game/godot_loader.html" 
+                        allow="autoplay; fullscreen" 
+                        allowfullscreen
+                        loading="eager"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Info -->
+    <section class="game-info" id="info">
+        <div class="container">
+            <div class="description">
+                <h2>ОБ ИГРЕ</h2>
+                <p>Cosmic Adventure - это захватывающая космическая аркада, созданная в Godot Engine. Отправляйтесь в межгалактическое путешествие, сражайтесь с вражескими кораблями и исследуйте далекие планеты.</p>
+                <p style="margin-top: 15px;">Игра полностью адаптирована для браузера и не требует установки. Все вычисления выполняются на вашем устройстве.</p>
+                <p style="margin-top: 15px; color: var(--accent); font-weight: 600;">
+                    <i class="fas fa-info-circle"></i> Игра загружена: <span id="gameSize">~15 MB</span>
+                </p>
+            </div>
+            
+            <div class="features">
+                <h2>ОСОБЕННОСТИ</h2>
+                <ul>
+                    <li><i class="fas fa-check"></i> Полная игра в браузере</li>
+                    <li><i class="fas fa-check"></i> 5 уникальных уровней</li>
+                    <li><i class="fas fa-check"></i> Система улучшений</li>
+                    <li><i class="fas fa-check"></i> 3 типа оружия</li>
+                    <li><i class="fas fa-check"></i> Босс-битвы</li>
+                    <li><i class="fas fa-check"></i> Система достижений</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Controls Guide -->
+    <section class="controls-guide" id="controls">
+        <div class="container">
+            <h2 style="color: var(--accent); margin-bottom: 10px; font-size: 2rem;">
+                <i class="fas fa-gamepad"></i> УПРАВЛЕНИЕ
+            </h2>
+            <p style="color: #aaa; margin-bottom: 30px;">
+                Используйте следующие клавиши для управления игрой
+            </p>
+            
+            <div class="controls-grid">
+                <div class="control-item">
+                    <i class="fas fa-arrow-up"></i>
+                    <h3>Движение</h3>
+                    <p>WASD или стрелки для перемещения</p>
+                </div>
+                <div class="control-item">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <h3>Стрельба</h3>
+                    <p>Пробел или левая кнопка мыши</p>
+                </div>
+                <div class="control-item">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Способности</h3>
+                    <p>Клавиши 1, 2, 3 для специальных атак</p>
+                </div>
+                <div class="control-item">
+                    <i class="fas fa-expand"></i>
+                    <h3>Полный экран</h3>
+                    <p>F11 или кнопка выше</p>
+                </div>
+            </div>
+            
+            <p style="margin-top: 30px; color: #888; font-size: 0.9rem;">
+                <i class="fas fa-exclamation-triangle"></i> Для лучшей производительности используйте последние версии Chrome, Firefox или Edge
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <span>COSMIC ADVENTURE</span>
+                </div>
+                
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-vk"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>© 2023 Cosmic Adventure. Игра создана с использованием Godot Engine.</p>
+                <p style="margin-top: 10px; font-size: 0.8rem;">
+                    <i class="fas fa-code"></i> Игра работает в браузере благодаря WebAssembly
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Управление игрой
+        document.addEventListener('DOMContentLoaded', function() {
+            const gameFrame = document.getElementById('gameFrame');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const restartBtn = document.getElementById('restartBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const loadProgress = document.getElementById('loadProgress');
+            
+            // Симуляция загрузки (можно убрать)
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) {
+                    progress = 100;
+                    clearInterval(progressInterval);
+                    // Скрываем overlay через 0.5 сек после загрузки
+                    setTimeout(() => {
+                        loadingOverlay.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingOverlay.style.display = 'none';
+                        }, 500);
+                    }, 500);
+                }
+                loadProgress.textContent = Math.min(progress, 100).toFixed(0) + '%';
+            }, 200);
+            
+            // Перезапуск игры
+            restartBtn.addEventListener('click', function() {
+                loadingOverlay.style.display = 'flex';
+                loadingOverlay.style.opacity = '1';
+                gameFrame.src = gameFrame.src;
+                
+                // Сброс прогресса
+                progress = 0;
+                loadProgress.textContent = '0%';
+            });
+            
+            // Полноэкранный режим для iframe
+            fullscreenBtn.addEventListener('click', function() {
+                if (gameFrame.requestFullscreen) {
+                    gameFrame.requestFullscreen();
+                } else if (gameFrame.mozRequestFullScreen) { /* Firefox */
+                    gameFrame.mozRequestFullScreen();
+                } else if (gameFrame.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                    gameFrame.webkitRequestFullscreen();
+                } else if (gameFrame.msRequestFullscreen) { /* IE/Edge */
+                    gameFrame.msRequestFullscreen();
+                }
+            });
+            
+            // Событие загрузки iframe
+            gameFrame.addEventListener('load', function() {
+                console.log('Игра загружена!');
+                // Можно отправить сообщение в iframe, если нужно
+                // gameFrame.contentWindow.postMessage('game_loaded', '*');
+            });
+            
+            // Обработка ошибок
+            gameFrame.addEventListener('error', function() {
+                loadingOverlay.innerHTML = `
+                    <div style="text-align: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5555; margin-bottom: 20px;"></i>
+                        <h3 style="color: #ff5555;">Ошибка загрузки игры</h3>
+                        <p style="color: #aaa; margin-bottom: 20px;">
+                            Не удалось загрузить игру. Пожалуйста, проверьте:
+                        </p>
+                        <ul style="text-align: left; color: #aaa;">
+                            <li>Файлы игры в папке godot_game/</li>
+                            <li>Переименован ли HTML-файл из Godot в godot_loader.html</li>
+                            <li>Доступны ли файлы .pck/.wasm</li>
+                        </ul>
+                        <button onclick="location.reload()" class="control-btn" style="margin-top: 20px;">
+                            <i class="fas fa-sync"></i> Попробовать снова
+                        </button>
+                    </div>
+                `;
+            });
+            
+            // Обработка сообщений от игры (если нужно)
+            window.addEventListener('message', function(event) {
+                console.log('Сообщение от игры:', event.data);
+                // Можно обрабатывать события от Godot игры здесь
+            });
+            
+            // Определяем размер игры
+            fetch('godot_game/game.pck')
+                .then(response => {
+                    if (response.ok) {
+                        const size = response.headers.get('content-length');
+                        if (size) {
+                            const mb = (size / 1024 / 1024).toFixed(1);
+                            document.getElementById('gameSize').textContent = mb + ' MB';
+                        }
+                    }
+                })
+                .catch(() => {
+                    // Если не удалось определить размер
+                });
+        });
+    </script>
+</body>
+</html>
